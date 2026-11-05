@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v2.3.0';
+const CACHE_VERSION = 'v2.7.0';
 const SCOPE_URL = self.registration.scope;
 const SCOPE_PATH = new URL(SCOPE_URL).pathname;
 const SCOPE_NAME = SCOPE_PATH.split('/').filter(Boolean).join('-') || 'root';
@@ -16,6 +16,16 @@ const APP_SHELL_PATHS = [
   'assets/images/icons/favicon.svg',
   'assets/images/icons/icon.svg',
   'assets/images/icons/icon-maskable.svg',
+  'assets/images/icons/background.jpg',
+  'assets/images/plants/monstera.jpg',
+  'assets/images/plants/zamioculca.jpg',
+  'assets/images/plants/sansevieria.jpg',
+  'assets/images/plants/calathea.jpg',
+  'assets/images/plants/jiboia.jpg',
+  'assets/images/plants/planta-aranha.jpg',
+  'assets/images/plants/ficus-lira.jpg',
+  'assets/images/plants/palmeira-sala.jpg',
+  'assets/images/plants/aloe-vera.jpg',
   'assets/css/styles.css',
   'assets/css/auth.css',
   'assets/css/catalog.css',
