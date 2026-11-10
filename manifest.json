@@ -6,9 +6,8 @@
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#F4F6F4",
+  "background_color": "#F8FAF8",
   "theme_color": "#1B4D3E",
-  "orientation": "portrait",
   "lang": "pt-PT",
   "categories": ["lifestyle", "education", "utilities"],
   "icons": [

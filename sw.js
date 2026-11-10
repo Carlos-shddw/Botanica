@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v2.7.0';
+const CACHE_VERSION = 'v2.9.0';
 const SCOPE_URL = self.registration.scope;
 const SCOPE_PATH = new URL(SCOPE_URL).pathname;
 const SCOPE_NAME = SCOPE_PATH.split('/').filter(Boolean).join('-') || 'root';
