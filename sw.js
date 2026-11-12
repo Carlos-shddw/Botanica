@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v2.9.0';
+const CACHE_VERSION = 'v2.10.0';
 const SCOPE_URL = self.registration.scope;
 const SCOPE_PATH = new URL(SCOPE_URL).pathname;
 const SCOPE_NAME = SCOPE_PATH.split('/').filter(Boolean).join('-') || 'root';
@@ -35,6 +35,7 @@ const APP_SHELL_PATHS = [
   'assets/js/db.js',
   'assets/js/modules/api.js',
   'assets/js/modules/catalog.js',
+  'assets/js/modules/garden.js',
   'assets/js/modules/ui.js',
   'assets/js/modules/utils.js'
 ];

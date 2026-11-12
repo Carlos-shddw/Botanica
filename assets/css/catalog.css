@@ -168,6 +168,10 @@
   margin-top: 0;
 }
 
+.garden-has-multiple-plants {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .plant-card {
   min-width: 0;
   border-color: #e6ebe3;
@@ -481,6 +485,277 @@
   line-height: 1.5;
 }
 
+.garden-dialog {
+  width: min(680px, calc(100% - 32px));
+}
+
+.garden-dialog > h2 {
+  padding-right: 36px;
+}
+
+.garden-dialog-intro {
+  margin: 8px 0 18px;
+  color: #59685a;
+  font-size: 0.9rem;
+}
+
+.garden-search {
+  margin-bottom: 8px;
+}
+
+.garden-search-count {
+  margin: 8px 0;
+  color: #687568;
+  font-size: 0.82rem;
+}
+
+.garden-search-results {
+  display: grid;
+  max-height: 240px;
+  gap: 8px;
+  overflow: auto;
+  padding: 2px;
+}
+
+.garden-search-result {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid #e6ebe3;
+  border-radius: 14px;
+  background: #fff;
+  color: #263b29;
+  text-align: left;
+  cursor: pointer;
+}
+
+.garden-search-result:hover,
+.garden-search-result[aria-pressed="true"] {
+  border-color: #8dbb8b;
+  background: #f5f9f3;
+}
+
+.garden-search-result > img {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.garden-search-result-details {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.garden-search-result-details > strong,
+.garden-search-result-details > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.garden-search-result-details > span {
+  color: #687568;
+  font-size: 0.76rem;
+}
+
+.garden-search-result-details .garden-search-water {
+  font-size: 0.73rem;
+}
+
+.garden-search-select {
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: #386641;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.garden-no-results {
+  padding: 16px 8px;
+  color: #687568;
+  text-align: center;
+}
+
+.garden-plant-preview {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid #e6ebe3;
+}
+
+.garden-plant-preview.hidden {
+  display: none;
+}
+
+.garden-dialog .garden-preview-title {
+  margin-top: 5px;
+  color: #204e2b;
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+}
+
+.garden-plant-preview .plant-dialog-facts {
+  margin: 16px 0;
+}
+
+.garden-plant-preview .plant-dialog-fact {
+  padding: 10px;
+}
+
+.garden-tips-heading {
+  margin-bottom: 8px;
+  color: #204e2b;
+  font-size: 1rem;
+}
+
+.garden-interval-label {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+  color: #263b29;
+  font-size: 0.87rem;
+  font-weight: 600;
+}
+
+.garden-interval-input {
+  width: 110px;
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid #cbd8c8;
+  border-radius: 10px;
+  color: #1c251e;
+  font: inherit;
+}
+
+.garden-interval-input:focus {
+  border-color: #579261;
+  outline: 3px solid rgba(56, 102, 65, 0.12);
+}
+
+.garden-next-watering-preview {
+  margin-top: 12px;
+  color: #285c35;
+  font-weight: 700;
+}
+
+.garden-interval-help {
+  margin-top: 3px;
+  color: #687568;
+  font-size: 0.8rem;
+}
+
+.garden-add-feedback {
+  min-height: 1.4em;
+  margin-top: 8px;
+  color: #9b3028;
+  font-size: 0.86rem;
+}
+
+.garden-save-button {
+  margin-top: 10px;
+}
+
+.garden-empty,
+.garden-error {
+  grid-column: 1 / -1;
+  padding: 28px 20px;
+  border: 1px dashed #cbd8c8;
+  border-radius: 16px;
+  color: #59685a;
+  text-align: center;
+}
+
+.garden-error {
+  margin-bottom: 10px;
+  border-color: #e0b7ad;
+  color: #9b3028;
+}
+
+.garden-plant-card .plant-common-name {
+  margin-bottom: 8px;
+}
+
+.garden-plant-card .plant-card-care {
+  display: grid;
+  gap: 8px;
+  align-items: start;
+  margin-top: 0;
+  padding: 14px 0;
+}
+
+.garden-watering {
+  padding: 13px;
+  border-radius: 12px;
+  background: #edf5eb;
+}
+
+.garden-watering-title {
+  color: #285c35;
+  font-size: 0.86rem;
+}
+
+.garden-watering-date {
+  margin-top: 3px;
+  color: #204e2b;
+  font-weight: 700;
+}
+
+.garden-watering-interval,
+.garden-watering-help,
+.garden-last-watered {
+  color: #687568;
+  font-size: 0.78rem;
+}
+
+.garden-care-details {
+  margin-top: 12px;
+  color: #526252;
+  font-size: 0.85rem;
+}
+
+.garden-care-details summary {
+  color: #285c35;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.garden-care-details ul {
+  margin-top: 8px;
+}
+
+.garden-watered-button {
+  align-self: flex-start;
+  margin-top: 16px;
+  padding: 10px 16px;
+}
+
+.garden-remove-button {
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 8px 12px;
+  border: 1px solid #d6a39c;
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: #9b3028;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.garden-remove-button:hover {
+  background: #fff5f3;
+}
+
+.garden-remove-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
 @keyframes dialog-enter {
   from { opacity: 0; transform: translate(-50%, calc(-50% + 8px)) scale(0.98); }
   to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
@@ -530,6 +805,25 @@
 
   .plant-dialog-facts {
     grid-template-columns: 1fr;
+  }
+
+  .garden-search-result {
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .garden-search-result > img {
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
+  }
+
+  .garden-search-water {
+    display: none;
+  }
+
+  .garden-search-select {
+    font-size: 0.72rem;
   }
 }
 

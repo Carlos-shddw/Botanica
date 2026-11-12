@@ -36,6 +36,28 @@ export async function savePersonalPlant(plantData) {
   });
 }
 
+export async function updatePersonalPlant(plantData) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('minhas_plantas', 'readwrite');
+    const store = tx.objectStore('minhas_plantas');
+    const request = store.put(plantData);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+export async function deletePersonalPlant(plantId) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('minhas_plantas', 'readwrite');
+    const store = tx.objectStore('minhas_plantas');
+    const request = store.delete(plantId);
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}
+
 // Obter todas as plantas do jardim pessoal
 export async function getPersonalPlants() {
   const db = await openDB();

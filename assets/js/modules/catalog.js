@@ -1,4 +1,4 @@
-const plants = [
+export const plants = [
   {
     id: 'monstera',
     name: 'Costela-de-adão',
@@ -7,6 +7,7 @@ const plants = [
     light: 'indireta',
     lightLabel: 'Luz indireta',
     water: 'Quando a camada superior do substrato estiver seca',
+    wateringIntervalDays: 7,
     difficulty: 'Fácil',
     petSafe: false,
     description: 'Folhas recortadas e exuberantes que dão um toque tropical a qualquer divisão luminosa.',
@@ -20,6 +21,7 @@ const plants = [
     light: 'sombra',
     lightLabel: 'Luz baixa a indireta',
     water: 'Só quando o substrato estiver completamente seco',
+    wateringIntervalDays: 21,
     difficulty: 'Muito fácil',
     petSafe: false,
     description: 'Resistente e elegante, é uma excelente escolha para quem está a começar.',
@@ -33,6 +35,7 @@ const plants = [
     light: 'indireta',
     lightLabel: 'Luz indireta',
     water: 'Deixa o substrato secar totalmente entre regas',
+    wateringIntervalDays: 21,
     difficulty: 'Muito fácil',
     petSafe: false,
     description: 'Uma planta escultural e muito tolerante, ideal para rotinas de cuidados simples.',
@@ -46,6 +49,7 @@ const plants = [
     light: 'sombra',
     lightLabel: 'Luz indireta suave',
     water: 'Mantém o substrato ligeiramente húmido',
+    wateringIntervalDays: 4,
     difficulty: 'Exigente',
     petSafe: true,
     description: 'Folhas desenhadas em tons de verde e púrpura, perfeitas para dar vida a cantos protegidos.',
@@ -59,6 +63,7 @@ const plants = [
     light: 'indireta',
     lightLabel: 'Luz indireta',
     water: 'Quando os primeiros centímetros de terra secarem',
+    wateringIntervalDays: 7,
     difficulty: 'Fácil',
     petSafe: false,
     description: 'Trepadeira versátil e de crescimento rápido, fica bonita em vasos suspensos ou com tutor.',
@@ -72,6 +77,7 @@ const plants = [
     light: 'indireta',
     lightLabel: 'Luz indireta',
     water: 'Quando a superfície da terra começar a secar',
+    wateringIntervalDays: 7,
     difficulty: 'Muito fácil',
     petSafe: true,
     description: 'Resistente, fácil de propagar e segura para animais; adapta-se a muitos ambientes.',
@@ -85,6 +91,7 @@ const plants = [
     light: 'indireta',
     lightLabel: 'Luz indireta brilhante',
     water: 'Quando a camada superior do substrato secar',
+    wateringIntervalDays: 7,
     difficulty: 'Exigente',
     petSafe: false,
     description: 'Uma árvore de interior marcante, conhecida pelas folhas grandes em forma de lira.',
@@ -98,6 +105,7 @@ const plants = [
     light: 'sombra',
     lightLabel: 'Luz indireta suave',
     water: 'Mantém a terra ligeiramente húmida, sem encharcar',
+    wateringIntervalDays: 7,
     difficulty: 'Fácil',
     petSafe: true,
     description: 'Palmeira compacta e segura para animais, adequada a divisões com luz moderada.',
@@ -111,6 +119,7 @@ const plants = [
     light: 'direta',
     lightLabel: 'Sol direto suave',
     water: 'Deixa o substrato secar completamente entre regas',
+    wateringIntervalDays: 21,
     difficulty: 'Fácil',
     petSafe: false,
     description: 'Suculenta prática para locais soalheiros, com folhas carnudas que armazenam água.',
@@ -120,7 +129,7 @@ const plants = [
 
 const difficultyOrder = { 'Muito fácil': 0, 'Fácil': 1, 'Exigente': 2 };
 
-function normalize(value) {
+export function normalize(value) {
   return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('pt-PT').trim();
 }
 

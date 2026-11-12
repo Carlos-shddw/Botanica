@@ -328,6 +328,22 @@
       <div id="my-plants-list" class="cards-grid">
         <!-- Lista do Jardim Pessoal (IndexedDB) -->
       </div>
+
+      <dialog id="add-plant-dialog" class="plant-dialog garden-dialog" aria-labelledby="add-plant-title">
+        <button class="plant-dialog-close" type="button" aria-label="Fechar pesquisa de plantas">
+          <span class="material-symbols-outlined" aria-hidden="true">close</span>
+        </button>
+        <h2 id="add-plant-title">Adicionar planta ao jardim</h2>
+        <p class="garden-dialog-intro">Pesquisa no catálogo e escolhe uma planta para veres os cuidados e definires a próxima rega.</p>
+
+        <div class="search-input-wrapper garden-search">
+          <span class="material-symbols-outlined" aria-hidden="true">search</span>
+          <input type="search" id="garden-search" autocomplete="off" placeholder="Pesquisar por nome ou espécie..." aria-label="Pesquisar plantas para adicionar ao jardim">
+        </div>
+        <p id="garden-search-count" class="garden-search-count" aria-live="polite"></p>
+        <div id="garden-search-results" class="garden-search-results"></div>
+        <section id="garden-plant-preview" class="garden-plant-preview hidden" aria-live="polite"></section>
+      </dialog>
     </section>
 
     <!-- Secção 3: Identificação de Plantas por Imagem -->
