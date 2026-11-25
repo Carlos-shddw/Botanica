@@ -602,8 +602,7 @@
 
 .auth-social {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .auth-social-button {
@@ -626,6 +625,11 @@
 .auth-social-button:hover {
   border-color: #c1c9be;
   background: #edeee9;
+}
+
+.auth-social-button:disabled {
+  cursor: wait;
+  opacity: 0.72;
 }
 
 .auth-social-button svg {

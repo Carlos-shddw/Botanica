@@ -1,9 +1,11 @@
 // Gestor de Interface e Navegação SPA
 import {
   createUserWithEmailAndPassword,
+  GoogleAuthProvider,
   onAuthStateChanged,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut,
   updateProfile
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
@@ -21,6 +23,7 @@ function setupAuthenticationScreen(navigateToSection) {
   const appElements = document.querySelectorAll('.auth-gated');
   const loginForm = document.getElementById('login-form');
   const signupForm = document.getElementById('signup-form');
+  const googleSignInButton = document.getElementById('btn-google-signin');
   const toast = document.getElementById('auth-toast');
   const toastMessage = document.getElementById('auth-toast-message');
   const returnButton = document.getElementById('btn-auth-return');
@@ -99,7 +102,11 @@ function setupAuthenticationScreen(navigateToSection) {
       case 'auth/network-request-failed':
         return 'Não foi possível contactar o Firebase. Verifica a ligação à internet.';
       case 'auth/operation-not-allowed':
-        return 'Ativa o método Email/palavra-passe em Authentication nas definições do projeto Firebase.';
+        return 'Ativa este método de autenticação nas definições do projeto Firebase.';
+      case 'auth/popup-blocked':
+        return 'O navegador bloqueou a janela de autenticação. Permite janelas pop-up e tenta novamente.';
+      case 'auth/popup-closed-by-user':
+        return 'A autenticação Google foi cancelada.';
       default:
         return error instanceof Error ? error.message : 'Ocorreu um erro ao contactar o Firebase.';
     }
@@ -111,6 +118,25 @@ function setupAuthenticationScreen(navigateToSection) {
 
   document.getElementById('btn-welcome-enter').addEventListener('click', () => showAuthentication('login'));
   document.getElementById('btn-welcome-signup').addEventListener('click', () => showAuthentication('signup'));
+
+  googleSignInButton.addEventListener('click', async () => {
+    googleSignInButton.disabled = true;
+
+    try {
+      const credential = await signInWithPopup(auth, new GoogleAuthProvider());
+      const account = {
+        name: credential.user.displayName || credential.user.email?.split('@')[0] || 'Jardineiro',
+        email: credential.user.email
+      };
+      showApp(account);
+      showToast(`Bem-vindo, ${account.name}!`);
+    } catch (error) {
+      console.error('Erro ao iniciar sessão com Google:', error);
+      showToast(getAuthErrorMessage(error));
+    } finally {
+      googleSignInButton.disabled = false;
+    }
+  });
 
   document.querySelectorAll('[data-password-target]').forEach((button) => {
     button.addEventListener('click', () => {

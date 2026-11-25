@@ -4,7 +4,7 @@ A aplicação usa Firebase Authentication para contas com email/palavra-passe e 
 
 ## Preparar o projeto
 
-1. Na consola Firebase do projeto `botanica-cc0bf`, abre **Authentication → Sign-in method** e ativa **Email/Password**.
+1. Na consola Firebase do projeto `botanica-cc0bf`, abre **Authentication → Sign-in method** e ativa **Email/Password** e **Google**.
 2. Cria uma base de dados em **Firestore Database**.
 3. Publica as regras de `firestore.rules`, que restringem cada jardim ao respetivo utilizador. Podes colar o conteúdo no separador **Rules** da base de dados e carregar em **Publish**, ou usar a CLI:
 
