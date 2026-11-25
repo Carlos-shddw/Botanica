@@ -6,7 +6,7 @@ A aplicação usa Firebase Authentication para contas com email/palavra-passe e 
 
 1. Na consola Firebase do projeto `botanica-cc0bf`, abre **Authentication → Sign-in method** e ativa **Email/Password** e **Google**.
 2. Cria uma base de dados em **Firestore Database**.
-3. Publica as regras de `firestore.rules`, que restringem cada jardim ao respetivo utilizador. Podes colar o conteúdo no separador **Rules** da base de dados e carregar em **Publish**, ou usar a CLI:
+3. Publica as regras de `firestore.rules`. Cada utilizador autenticado só pode ler e gerir os documentos em `users/{uid}/plants/{id}` cujo `uid` coincide com o seu. A criação valida o esquema dos registos e a edição só permite alterar os campos de rega (`wateringIntervalDays`, `nextWateringDate` e `lastWateredAt`); os restantes dados da planta ficam imutáveis depois de criada. A eliminação também só é permitida ao proprietário. Os restantes caminhos são negados por omissão. Podes colar o conteúdo no separador **Rules** da base de dados e carregar em **Publish**, ou usar a CLI:
 
    ```sh
    firebase login

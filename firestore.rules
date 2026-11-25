@@ -2,8 +2,64 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /users/{userId}/plants/{plantId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+    function ownsGarden(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function isDateOrNull(value) {
+      return value == null
+        || (value is string && value.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$'));
+    }
+
+    function isValidPlant(data) {
+      return data.keys().hasAll([
+          'plantId', 'name', 'scientificName', 'image', 'light', 'lightLabel',
+          'water', 'wateringIntervalDays', 'difficulty', 'petSafe', 'description',
+          'care', 'nextWateringDate', 'lastWateredAt'
+        ])
+        && data.keys().hasOnly([
+          'plantId', 'name', 'scientificName', 'image', 'light', 'lightLabel',
+          'water', 'wateringIntervalDays', 'difficulty', 'petSafe', 'description',
+          'care', 'nextWateringDate', 'lastWateredAt'
+        ])
+        && data.plantId is string
+        && data.plantId in [
+          'monstera', 'zamioculca', 'sansevieria', 'calathea', 'pothos',
+          'chlorophytum', 'ficus', 'chamaedorea', 'aloe'
+        ]
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 100
+        && data.scientificName is string && data.scientificName.size() > 0
+        && data.scientificName.size() <= 120
+        && data.image is string && data.image.size() > 0 && data.image.size() <= 240
+        && data.light is string && data.light.size() > 0 && data.light.size() <= 40
+        && data.lightLabel is string && data.lightLabel.size() > 0
+        && data.lightLabel.size() <= 80
+        && data.water is string && data.water.size() > 0 && data.water.size() <= 200
+        && data.wateringIntervalDays is int
+        && data.wateringIntervalDays >= 1 && data.wateringIntervalDays <= 60
+        && data.difficulty is string && data.difficulty.size() > 0
+        && data.difficulty.size() <= 40
+        && data.petSafe is bool
+        && data.description is string && data.description.size() > 0
+        && data.description.size() <= 500
+        && data.care is list && data.care.size() >= 1 && data.care.size() <= 10
+        && isDateOrNull(data.nextWateringDate)
+        && data.nextWateringDate is string
+        && isDateOrNull(data.lastWateredAt);
+    }
+
+    match /users/{userId} {
+      allow read, write: if false;
+
+      match /plants/{plantId} {
+        allow get, list: if ownsGarden(userId);
+        allow create: if ownsGarden(userId) && isValidPlant(request.resource.data);
+        allow update: if ownsGarden(userId)
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['wateringIntervalDays', 'nextWateringDate', 'lastWateredAt'])
+          && isValidPlant(request.resource.data);
+        allow delete: if ownsGarden(userId);
+      }
     }
   }
 }
