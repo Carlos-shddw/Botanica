@@ -1,11 +1,12 @@
 // Gestor de Interface e Navegação SPA
 import {
   createUserWithEmailAndPassword,
+  getRedirectResult,
   GoogleAuthProvider,
   onAuthStateChanged,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
-  signInWithPopup,
+  signInWithRedirect,
   signOut,
   updateProfile
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
@@ -103,10 +104,6 @@ function setupAuthenticationScreen(navigateToSection) {
         return 'Não foi possível contactar o Firebase. Verifica a ligação à internet.';
       case 'auth/operation-not-allowed':
         return 'Ativa este método de autenticação nas definições do projeto Firebase.';
-      case 'auth/popup-blocked':
-        return 'O navegador bloqueou a janela de autenticação. Permite janelas pop-up e tenta novamente.';
-      case 'auth/popup-closed-by-user':
-        return 'A autenticação Google foi cancelada.';
       default:
         return error instanceof Error ? error.message : 'Ocorreu um erro ao contactar o Firebase.';
     }
@@ -123,15 +120,9 @@ function setupAuthenticationScreen(navigateToSection) {
     googleSignInButton.disabled = true;
 
     try {
-      const credential = await signInWithPopup(auth, new GoogleAuthProvider());
-      const account = {
-        name: credential.user.displayName || credential.user.email?.split('@')[0] || 'Jardineiro',
-        email: credential.user.email
-      };
-      showApp(account);
-      showToast(`Bem-vindo, ${account.name}!`);
+      await signInWithRedirect(auth, new GoogleAuthProvider());
     } catch (error) {
-      console.error('Erro ao iniciar sessão com Google:', error);
+      console.error('Erro ao redirecionar para iniciar sessão com Google:', error);
       showToast(getAuthErrorMessage(error));
     } finally {
       googleSignInButton.disabled = false;
@@ -237,6 +228,15 @@ function setupAuthenticationScreen(navigateToSection) {
   });
 
   document.getElementById('btn-explore-without-account').addEventListener('click', () => showApp());
+  getRedirectResult(auth).then((credential) => {
+    if (!credential) return;
+    const name = credential.user.displayName || credential.user.email?.split('@')[0] || 'Jardineiro';
+    showToast(`Bem-vindo, ${name}!`);
+  }).catch((error) => {
+    console.error('Erro ao concluir a autenticação Google:', error);
+    showToast(getAuthErrorMessage(error));
+  });
+
   returnButton.addEventListener('click', async () => {
     if (!currentAccount) {
       showWelcome();
