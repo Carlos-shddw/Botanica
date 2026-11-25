@@ -1,6 +1,6 @@
 # Configuração Firebase
 
-A aplicação usa Firebase Authentication para contas com email/palavra-passe e início de sessão Google por redirecionamento, e Cloud Firestore para guardar o jardim de cada utilizador.
+A aplicação usa Firebase Authentication para contas com email/palavra-passe e início de sessão Google, e Cloud Firestore para guardar o jardim de cada utilizador.
 
 ## Preparar o projeto
 
