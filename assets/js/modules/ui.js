@@ -1,7 +1,13 @@
 // Gestor de Interface e Navegação SPA
-const DEMO_ACCOUNTS_KEY = 'botanica-demo-accounts';
-const DEMO_SESSION_KEY = 'botanica-demo-session';
-const PASSWORD_HASH_ITERATIONS = 210000;
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signOut,
+  updateProfile
+} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+import { auth } from '../firebase.js';
 
 export function initUI() {
   const navigateToSection = setupNavigation();
@@ -20,6 +26,7 @@ function setupAuthenticationScreen(navigateToSection) {
   const returnButton = document.getElementById('btn-auth-return');
   let toastTimeout;
   let currentAccount = null;
+  let isGuestBrowsing = false;
 
   function showToast(message) {
     toastMessage.textContent = message;
@@ -51,6 +58,7 @@ function setupAuthenticationScreen(navigateToSection) {
 
   function showWelcome() {
     currentAccount = null;
+    isGuestBrowsing = false;
     authScreen.classList.add('hidden');
     welcomeScreen.classList.remove('hidden');
     appElements.forEach((element) => element.classList.add('hidden'));
@@ -64,6 +72,7 @@ function setupAuthenticationScreen(navigateToSection) {
 
   function showApp(account = null) {
     currentAccount = account;
+    isGuestBrowsing = !account;
     welcomeScreen.classList.add('hidden');
     authScreen.classList.add('hidden');
     appElements.forEach((element) => element.classList.remove('hidden'));
@@ -73,48 +82,27 @@ function setupAuthenticationScreen(navigateToSection) {
     window.scrollTo({ top: 0 });
   }
 
-  function readAccounts() {
-    const savedAccounts = window.localStorage.getItem(DEMO_ACCOUNTS_KEY);
-    if (!savedAccounts) return [];
-
-    const accounts = JSON.parse(savedAccounts);
-    if (!Array.isArray(accounts) || accounts.some((account) => (
-      !account
-      || typeof account.email !== 'string'
-      || typeof account.name !== 'string'
-      || typeof account.salt !== 'string'
-      || typeof account.hash !== 'string'
-      || !Number.isInteger(account.iterations)
-    ))) {
-      throw new Error('Os dados das contas de demonstração estão inválidos. Limpa os dados do site e tenta novamente.');
+  function getAuthErrorMessage(error) {
+    switch (error?.code) {
+      case 'auth/invalid-credential':
+      case 'auth/wrong-password':
+      case 'auth/user-not-found':
+        return 'Email ou palavra-passe incorretos.';
+      case 'auth/email-already-in-use':
+        return 'Já existe uma conta com este email. Inicia sessão.';
+      case 'auth/weak-password':
+        return 'A palavra-passe é demasiado fraca. Escolhe outra com pelo menos 8 caracteres.';
+      case 'auth/invalid-email':
+        return 'O endereço de email não é válido.';
+      case 'auth/too-many-requests':
+        return 'Foram feitas demasiadas tentativas. Tenta novamente mais tarde.';
+      case 'auth/network-request-failed':
+        return 'Não foi possível contactar o Firebase. Verifica a ligação à internet.';
+      case 'auth/operation-not-allowed':
+        return 'Ativa o método Email/palavra-passe em Authentication nas definições do projeto Firebase.';
+      default:
+        return error instanceof Error ? error.message : 'Ocorreu um erro ao contactar o Firebase.';
     }
-    return accounts;
-  }
-
-  async function hashPassword(password, saltHex, iterations = PASSWORD_HASH_ITERATIONS) {
-    if (!window.crypto?.subtle) {
-      throw new Error('Este browser não disponibiliza a proteção necessária. Abre a aplicação através de HTTPS ou localhost.');
-    }
-
-    const keyMaterial = await window.crypto.subtle.importKey(
-      'raw',
-      new TextEncoder().encode(password),
-      'PBKDF2',
-      false,
-      ['deriveBits']
-    );
-    const hash = await window.crypto.subtle.deriveBits({
-      name: 'PBKDF2',
-      salt: Uint8Array.from(saltHex.match(/.{2}/g), (byte) => Number.parseInt(byte, 16)),
-      iterations,
-      hash: 'SHA-256'
-    }, keyMaterial, 256);
-    return Array.from(new Uint8Array(hash), (byte) => byte.toString(16).padStart(2, '0')).join('');
-  }
-
-  function createSalt() {
-    const bytes = window.crypto.getRandomValues(new Uint8Array(16));
-    return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
   }
 
   document.querySelectorAll('[data-auth-mode]').forEach((button) => {
@@ -144,19 +132,17 @@ function setupAuthenticationScreen(navigateToSection) {
     submitButton.textContent = 'A validar...';
 
     try {
-      const account = readAccounts().find((savedAccount) => savedAccount.email === email);
-      if (!account || await hashPassword(password, account.salt, account.iterations) !== account.hash) {
-        showToast('Email ou palavra-passe incorretos.');
-        return;
-      }
-
-      window.localStorage.setItem(DEMO_SESSION_KEY, account.email);
+      const credential = await signInWithEmailAndPassword(auth, email, password);
+      const account = {
+        name: credential.user.displayName || email.split('@')[0],
+        email: credential.user.email
+      };
       loginForm.reset();
       showApp(account);
       showToast(`Bem-vindo, ${account.name}!`);
     } catch (error) {
-      console.error('Erro ao iniciar sessão de demonstração:', error);
-      showToast(error instanceof Error ? error.message : 'Não foi possível iniciar sessão.');
+      console.error('Erro ao iniciar sessão Firebase:', error);
+      showToast(getAuthErrorMessage(error));
     } finally {
       submitButton.disabled = false;
       submitButton.innerHTML = 'Entrar <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>';
@@ -191,29 +177,14 @@ function setupAuthenticationScreen(navigateToSection) {
     submitButton.textContent = 'A criar conta...';
 
     try {
-      const accounts = readAccounts();
-      if (accounts.some((account) => account.email === email)) {
-        showToast('Já existe uma conta com este email. Inicia sessão.');
-        return;
-      }
-
-      const salt = createSalt();
-      const account = {
-        name,
-        email,
-        salt,
-        hash: await hashPassword(password, salt),
-        iterations: PASSWORD_HASH_ITERATIONS
-      };
-      accounts.push(account);
-      window.localStorage.setItem(DEMO_ACCOUNTS_KEY, JSON.stringify(accounts));
-      window.localStorage.setItem(DEMO_SESSION_KEY, account.email);
+      const credential = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(credential.user, { displayName: name });
       signupForm.reset();
-      showApp(account);
-      showToast(`Conta criada. Bem-vindo, ${account.name}!`);
+      showApp({ name, email: credential.user.email });
+      showToast(`Conta criada. Bem-vindo, ${name}!`);
     } catch (error) {
-      console.error('Erro ao criar conta de demonstração:', error);
-      showToast(error instanceof Error ? error.message : 'Não foi possível criar a conta.');
+      console.error('Erro ao criar conta Firebase:', error);
+      showToast(getAuthErrorMessage(error));
     } finally {
       submitButton.disabled = false;
       submitButton.innerHTML = 'Criar conta <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>';
@@ -221,39 +192,54 @@ function setupAuthenticationScreen(navigateToSection) {
   });
 
   document.querySelectorAll('[data-auth-action="reset"]').forEach((button) => {
-    button.addEventListener('click', () => {
-      showToast('As contas de demonstração não têm recuperação de palavra-passe. Cria uma conta com outro email.');
+    button.addEventListener('click', async () => {
+      const email = loginForm.elements.email.value.trim().toLocaleLowerCase('pt-PT');
+      if (!email) {
+        showToast('Introduz o teu email antes de pedir a recuperação da palavra-passe.');
+        loginForm.elements.email.focus();
+        return;
+      }
+
+      try {
+        await sendPasswordResetEmail(auth, email);
+        showToast('Se existir uma conta para este email, receberás uma mensagem para repor a palavra-passe.');
+      } catch (error) {
+        console.error('Erro ao pedir reposição da palavra-passe Firebase:', error);
+        showToast(getAuthErrorMessage(error));
+      }
     });
   });
 
   document.getElementById('btn-explore-without-account').addEventListener('click', () => showApp());
-  returnButton.addEventListener('click', () => {
+  returnButton.addEventListener('click', async () => {
     if (!currentAccount) {
       showWelcome();
       return;
     }
 
     try {
-      window.localStorage.removeItem(DEMO_SESSION_KEY);
-      showWelcome();
+      isGuestBrowsing = false;
+      await signOut(auth);
       showToast('Sessão terminada.');
     } catch (error) {
-      console.error('Erro ao terminar sessão de demonstração:', error);
-      showToast(error instanceof Error ? error.message : 'Não foi possível terminar a sessão.');
+      console.error('Erro ao terminar sessão Firebase:', error);
+      showToast(getAuthErrorMessage(error));
     }
   });
 
-  try {
-    const sessionEmail = window.localStorage.getItem(DEMO_SESSION_KEY);
-    if (sessionEmail) {
-      const account = readAccounts().find((savedAccount) => savedAccount.email === sessionEmail);
-      if (account) showApp(account);
-      else window.localStorage.removeItem(DEMO_SESSION_KEY);
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      showApp({
+        name: user.displayName || user.email?.split('@')[0] || 'Jardineiro',
+        email: user.email
+      });
+    } else if (!isGuestBrowsing) {
+      showWelcome();
     }
-  } catch (error) {
-    console.error('Erro ao restaurar sessão de demonstração:', error);
-    showToast(error instanceof Error ? error.message : 'Não foi possível restaurar a sessão.');
-  }
+  }, (error) => {
+    console.error('Erro ao verificar a sessão Firebase:', error);
+    showToast(getAuthErrorMessage(error));
+  });
 }
 
 function setupNavigation() {

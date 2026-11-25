@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v2.10.0';
+const CACHE_VERSION = 'v2.11.0';
 const SCOPE_URL = self.registration.scope;
 const SCOPE_PATH = new URL(SCOPE_URL).pathname;
 const SCOPE_NAME = SCOPE_PATH.split('/').filter(Boolean).join('-') || 'root';
@@ -32,6 +32,7 @@ const APP_SHELL_PATHS = [
   'assets/css/components/header.css',
   'assets/css/components/cards.css',
   'assets/js/app.js',
+  'assets/js/firebase.js',
   'assets/js/db.js',
   'assets/js/modules/api.js',
   'assets/js/modules/catalog.js',

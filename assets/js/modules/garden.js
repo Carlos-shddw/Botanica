@@ -1,4 +1,6 @@
 import { deletePersonalPlant, getPersonalPlants, savePersonalPlant, updatePersonalPlant } from '../db.js';
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+import { auth } from '../firebase.js';
 import { normalize, plants } from './catalog.js';
 
 function getLocalDate(daysFromNow = 0) {
@@ -103,8 +105,19 @@ export function initGarden() {
   const preview = document.getElementById('garden-plant-preview');
   const closeButton = dialog.querySelector('.plant-dialog-close');
   let selectedPlant = null;
+  addButton.disabled = true;
 
   async function renderGarden() {
+    if (!auth.currentUser) {
+      gardenList.classList.remove('garden-has-multiple-plants');
+      gardenList.replaceChildren(createTextElement(
+        'p',
+        'garden-empty',
+        'Inicia sessão para guardar e sincronizar as plantas do teu jardim.'
+      ));
+      return;
+    }
+
     try {
       const personalPlants = await getPersonalPlants();
       gardenList.classList.toggle('garden-has-multiple-plants', personalPlants.length >= 2);
@@ -295,8 +308,8 @@ export function initGarden() {
   gardenList.addEventListener('click', async (event) => {
     const removeButton = event.target.closest('[data-delete-plant]');
     if (removeButton) {
-      const plantId = Number(removeButton.dataset.deletePlant);
-      if (!Number.isInteger(plantId)) return;
+      const plantId = removeButton.dataset.deletePlant;
+      if (!plantId) return;
 
       const plantName = removeButton.closest('.garden-plant-card').querySelector('.plant-common-name').textContent;
       if (!window.confirm(`Queres remover ${plantName} do teu jardim?`)) return;
@@ -343,5 +356,16 @@ export function initGarden() {
     }
   });
 
-  renderGarden();
+  onAuthStateChanged(auth, (user) => {
+    addButton.disabled = !user;
+    renderGarden();
+  }, (error) => {
+    console.error('Erro ao verificar a sessão Firebase no jardim:', error);
+    addButton.disabled = true;
+    gardenList.replaceChildren(createTextElement(
+      'p',
+      'garden-error',
+      'Não foi possível verificar a sessão. Atualiza a página e tenta novamente.'
+    ));
+  });
 }

@@ -1,71 +1,57 @@
-const DB_NAME = 'FloriculturaDB';
-const DB_VERSION = 1;
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  setDoc
+} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import { auth, firestore } from './firebase.js';
 
-export function openDB() {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
+function getUserPlantsCollection() {
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error('Inicia sessão para aceder ao teu jardim.');
+  }
 
-    request.onupgradeneeded = (event) => {
-      const db = event.target.result;
-      
-      // Tabela para as plantas pessoais do utilizador
-      if (!db.objectStoreNames.contains('minhas_plantas')) {
-        db.createObjectStore('minhas_plantas', { keyPath: 'id', autoIncrement: true });
-      }
-
-      // Tabela para agendamento de lembretes (rega, fertilização, poda)
-      if (!db.objectStoreNames.contains('lembretes')) {
-        db.createObjectStore('lembretes', { keyPath: 'id', autoIncrement: true });
-      }
-    };
-
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
+  return collection(firestore, 'users', user.uid, 'plants');
 }
 
-// Adicionar planta ao jardim pessoal
 export async function savePersonalPlant(plantData) {
-  const db = await openDB();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction('minhas_plantas', 'readwrite');
-    const store = tx.objectStore('minhas_plantas');
-    const request = store.add(plantData);
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
+  const plant = await addDoc(getUserPlantsCollection(), plantData);
+  return plant.id;
 }
 
 export async function updatePersonalPlant(plantData) {
-  const db = await openDB();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction('minhas_plantas', 'readwrite');
-    const store = tx.objectStore('minhas_plantas');
-    const request = store.put(plantData);
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
+  const { id, ...data } = plantData;
+  if (typeof id !== 'string' || !id) {
+    throw new Error('A planta selecionada não tem um identificador válido.');
+  }
+
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error('Inicia sessão para aceder ao teu jardim.');
+  }
+
+  await setDoc(doc(firestore, 'users', user.uid, 'plants', id), data);
 }
 
 export async function deletePersonalPlant(plantId) {
-  const db = await openDB();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction('minhas_plantas', 'readwrite');
-    const store = tx.objectStore('minhas_plantas');
-    const request = store.delete(plantId);
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
-  });
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error('Inicia sessão para aceder ao teu jardim.');
+  }
+  if (typeof plantId !== 'string' || !plantId) {
+    throw new Error('A planta selecionada não tem um identificador válido.');
+  }
+
+  await deleteDoc(doc(firestore, 'users', user.uid, 'plants', plantId));
 }
 
-// Obter todas as plantas do jardim pessoal
 export async function getPersonalPlants() {
-  const db = await openDB();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction('minhas_plantas', 'readonly');
-    const store = tx.objectStore('minhas_plantas');
-    const request = store.getAll();
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
+  const plants = await getDocs(getUserPlantsCollection());
+  return plants.docs.map((plant) => ({
+    ...plant.data(),
+    id: plant.id
+  }));
 }
