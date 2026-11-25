@@ -1,3 +1,7 @@
+import { savePersonalPlant } from '../db.js';
+import { auth } from '../firebase.js';
+import { getLocalDate } from './utils.js';
+
 export const plants = [
   {
     id: 'monstera',
@@ -189,7 +193,30 @@ function createPlantCard(plant) {
   details.dataset.plantDetails = plant.id;
   details.setAttribute('aria-label', `Ver cuidados de ${plant.name}`);
   details.innerHTML = 'Ver cuidados <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>';
-  content.append(scientific, name, description, care, details);
+
+  const addButton = document.createElement('button');
+  addButton.className = 'plant-card-add';
+  addButton.type = 'button';
+  addButton.dataset.addPlant = plant.id;
+  addButton.setAttribute('aria-label', `Adicionar ${plant.name} ao meu jardim`);
+  const addIcon = document.createElement('span');
+  addIcon.className = 'material-symbols-outlined';
+  addIcon.setAttribute('aria-hidden', 'true');
+  addIcon.textContent = 'add';
+  const addLabel = document.createElement('span');
+  addLabel.className = 'plant-card-add-label';
+  addLabel.textContent = 'Adicionar ao meu jardim';
+  addButton.append(addIcon, addLabel);
+
+  const actions = document.createElement('div');
+  actions.className = 'plant-card-actions';
+  const feedback = document.createElement('span');
+  feedback.className = 'plant-card-feedback';
+  feedback.setAttribute('role', 'status');
+  feedback.setAttribute('aria-live', 'polite');
+  actions.append(addButton, details, feedback);
+
+  content.append(scientific, name, description, care, actions);
   article.append(imageWrap, content);
   return article;
 }
@@ -244,8 +271,6 @@ export function initCatalog() {
   const dialog = document.getElementById('plant-details');
   const dialogContent = document.getElementById('plant-dialog-content');
 
-  document.getElementById('catalog-total').textContent = String(plants.length);
-
   function render() {
     const query = normalize(search.value);
     const filtered = plants.filter((plant) => {
@@ -290,6 +315,47 @@ export function initCatalog() {
     if (!plant) return;
     renderDetails(plant, dialogContent);
     dialog.showModal();
+  });
+
+  list.addEventListener('click', async (event) => {
+    const addButton = event.target.closest('[data-add-plant]');
+    if (!addButton) return;
+
+    const plant = plants.find((item) => item.id === addButton.dataset.addPlant);
+    if (!plant) return;
+
+    const feedback = addButton.closest('.plant-card-actions').querySelector('.plant-card-feedback');
+    if (!auth.currentUser) {
+      feedback.classList.add('is-error');
+      feedback.textContent = 'Inicia sessão para adicionar plantas ao teu jardim.';
+      return;
+    }
+
+    const addLabel = addButton.querySelector('.plant-card-add-label');
+    addButton.disabled = true;
+    addLabel.textContent = 'A adicionar...';
+    feedback.classList.remove('is-error');
+    feedback.textContent = '';
+
+    try {
+      const { id: plantId, ...plantDetails } = plant;
+      await savePersonalPlant({
+        ...plantDetails,
+        plantId,
+        wateringIntervalDays: plant.wateringIntervalDays,
+        nextWateringDate: getLocalDate(plant.wateringIntervalDays),
+        lastWateredAt: null
+      });
+      feedback.textContent = 'Planta adicionada ao teu jardim.';
+      window.dispatchEvent(new Event('garden-updated'));
+    } catch (error) {
+      console.error('Erro ao adicionar planta ao jardim:', error);
+      feedback.classList.add('is-error');
+      feedback.textContent = 'Não foi possível adicionar a planta. Tenta novamente.';
+    } finally {
+      addButton.disabled = false;
+      addLabel.textContent = 'Adicionar ao meu jardim';
+    }
   });
 
   dialog.querySelector('.plant-dialog-close').addEventListener('click', () => dialog.close());

@@ -2,17 +2,7 @@ import { deletePersonalPlant, getPersonalPlants, savePersonalPlant, updatePerson
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 import { auth } from '../firebase.js';
 import { normalize, plants } from './catalog.js';
-
-function getLocalDate(daysFromNow = 0) {
-  const date = new Date();
-  date.setHours(0, 0, 0, 0);
-  date.setDate(date.getDate() + daysFromNow);
-  return [
-    date.getFullYear(),
-    String(date.getMonth() + 1).padStart(2, '0'),
-    String(date.getDate()).padStart(2, '0')
-  ].join('-');
-}
+import { getLocalDate } from './utils.js';
 
 function formatDate(dateString) {
   const date = new Date(`${dateString}T00:00:00`);
@@ -355,6 +345,8 @@ export function initGarden() {
       ));
     }
   });
+
+  window.addEventListener('garden-updated', renderGarden);
 
   onAuthStateChanged(auth, (user) => {
     addButton.disabled = !user;

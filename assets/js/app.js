@@ -1,12 +1,14 @@
 import { initUI } from './modules/ui.js';
 import { initCatalog } from './modules/catalog.js';
 import { initGarden } from './modules/garden.js';
+import { initAgenda } from './modules/agenda.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // Inicializar interface e escutas de eventos
   initUI();
   initCatalog();
   initGarden();
+  initAgenda();
 
   // Registo do Service Worker
   if ('serviceWorker' in navigator) {

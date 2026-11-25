@@ -26,6 +26,7 @@
   <link rel="stylesheet" href="./assets/css/components/header.css">
   <link rel="stylesheet" href="./assets/css/components/cards.css">
   <link rel="stylesheet" href="./assets/css/catalog.css">
+  <link rel="stylesheet" href="./assets/css/agenda.css">
   <link rel="stylesheet" href="./assets/css/auth.css">
 </head>
 <body>
@@ -261,21 +262,6 @@
         <p class="subtitle">Explora espécies, compara os cuidados e descobre qual se adapta melhor à tua casa.</p>
       </header>
 
-      <div class="catalog-highlights" aria-label="Destaques do catálogo">
-        <div class="catalog-highlight">
-          <span class="material-symbols-outlined" aria-hidden="true">yard</span>
-          <span><strong id="catalog-total">0</strong> espécies para explorar</span>
-        </div>
-        <div class="catalog-highlight">
-          <span class="material-symbols-outlined" aria-hidden="true">pets</span>
-          <span>Opções seguras para animais</span>
-        </div>
-        <div class="catalog-highlight">
-          <span class="material-symbols-outlined" aria-hidden="true">light_mode</span>
-          <span>Cuidados para cada espaço</span>
-        </div>
-      </div>
-
       <div class="catalog-toolbar">
         <div class="search-input-wrapper">
           <span class="material-symbols-outlined" aria-hidden="true">search</span>
@@ -380,12 +366,12 @@
     <!-- Secção 4: Agenda de Lembretes -->
     <section id="lembretes" class="app-section hidden">
       <header class="section-header">
-        <h1>Agenda de Rega & Manutenção</h1>
-        <p class="subtitle">Próximas tarefas recomendadas para manter o seu jardim saudável.</p>
+        <h1>Agenda de Rega</h1>
+        <p class="subtitle">Consulta as próximas regas agendadas para as plantas do teu jardim.</p>
       </header>
 
-      <div id="reminders-list" class="timeline-container">
-        <!-- Lista de tarefas pendentes -->
+      <div id="reminders-list" class="agenda-list" aria-live="polite">
+        <p class="agenda-empty">A carregar as regas agendadas...</p>
       </div>
     </section>
 
