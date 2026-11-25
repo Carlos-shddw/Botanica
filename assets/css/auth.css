@@ -602,6 +602,8 @@
 
 .auth-social {
   display: grid;
+  width: min(100%, 300px);
+  margin: 0 auto;
   grid-template-columns: minmax(0, 1fr);
 }
 
